@@ -35,7 +35,7 @@ export default function Result() {
         <div className="space-y-4">
           <div>
             <h2 className="text-lg font-semibold">Итог расчёта</h2>
-            <p className="text-sm text-slate-500">Сервис: {payload.servicePercent}% · Всего: {payload.total} UZS</p>
+            <p className="text-sm text-slate-500">Сервис: {payload.servicePercent}% · Всего: {payload.total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} UZS</p>
           </div>
 
           <div className="rounded-[12px] p-3 border border-slate-100 dark:border-white/5 bg-white dark:bg-white/4">
@@ -53,14 +53,40 @@ export default function Result() {
           <div className="rounded-[12px] p-3 border border-slate-100 dark:border-white/5 bg-white dark:bg-white/4">
             <div className="text-sm font-medium text-slate-700 dark:text-slate-100">Блюда</div>
             <div className="mt-2 text-sm text-slate-600 space-y-2">
-              {payload.dishes.map((d: any) => (
-                <div key={d.id} className="flex items-center justify-between">
-                  <div>{d.name} · {d.qty} шт</div>
-                  <div className="text-xs text-slate-500">{d.totalPrice} UZS</div>
-                </div>
-              ))}
+              {payload.dishes.map((d: any) => {
+                const hasAssignments = d.assignments.some((unitAssignees: any[]) => unitAssignees.length > 0);
+                const assignmentSummary = hasAssignments
+                  ? d.assignments.filter((unitAssignees: any[]) => unitAssignees.length > 0).map((unitAssignees: any[]) =>
+                      unitAssignees.map((a: any) => a.name).join(" + ")
+                    ).join(", ")
+                  : "Не назначено";
+
+                return (
+                  <div key={d.id} className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <div>{d.name} · {d.qty} шт</div>
+                      <div className="text-xs text-slate-500">{d.totalPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} UZS</div>
+                    </div>
+                    <div className="text-xs text-slate-400 pl-2">→ {assignmentSummary}</div>
+                  </div>
+                );
+              })}
             </div>
           </div>
+
+          {payload.groups && payload.groups.length > 0 && (
+            <div className="rounded-[12px] p-3 border border-slate-100 dark:border-white/5 bg-white dark:bg-white/4">
+              <div className="text-sm font-medium text-slate-700 dark:text-slate-100">Группы</div>
+              <div className="mt-2 text-sm text-slate-600 space-y-1">
+                {payload.groups.map((g: any) => (
+                  <div key={g.id} className="flex items-center justify-between">
+                    <div>{g.name}</div>
+                    <div className="text-xs text-slate-500">{g.memberIds.length} участников</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="flex gap-2 mt-2">
             <Button onClick={() => navigate(-1)} variant="ghost" className="flex-1">Назад</Button>
