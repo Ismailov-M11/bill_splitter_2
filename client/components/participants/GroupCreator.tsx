@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 interface GroupCreatorProps {
   participants: Participant[];
-  onGroupCreated: (group: Group) => void;
+  onGroupCreated: (memberIds: string[]) => void;
   onCancel: () => void;
 }
 
@@ -49,7 +49,7 @@ export function GroupCreator({
   return (
     <div className="space-y-3">
       <div className="text-sm font-medium text-slate-600 dark:text-slate-300">
-        Выберите участников для группы
+        Выб��рите участников для группы
       </div>
 
       <div className="space-y-2 max-h-64 overflow-y-auto">
