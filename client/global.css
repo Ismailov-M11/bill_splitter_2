@@ -114,31 +114,4 @@
   }
 }
 
-/* =====================================================
-   🚫 Telegram Dark Mode Override — Force Light Theme
-   ===================================================== */
 
-html {
-  color-scheme: light !important;
-}
-
-:root {
-  color-scheme: light !important;
-}
-
-/* Telegram WebApp часто добавляет класс .dark или data-theme="dark" */
-html[data-theme="dark"],
-body[data-theme="dark"],
-html.dark,
-body.dark {
-  color-scheme: light !important;
-  background-color: hsl(var(--background)) !important;
-  color: hsl(var(--foreground)) !important;
-}
-
-/* Даже если система пользователя в темной теме — игнорируем */
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: light !important;
-  }
-}

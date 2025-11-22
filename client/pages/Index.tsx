@@ -363,7 +363,7 @@ export default function Index() {
                   value={dishName}
                   onChange={(e) => setDishName(e.target.value)}
                   placeholder="Введите название блюда"
-                  className="w-full rounded-[14px] bg-white dark:bg-white/10 px-4 py-3 text-base text-[#333] placeholder:text-slate-400 border border-slate-200/80 shadow-[0_4px_12px_rgba(0,0,0,0.05)] focus:outline-none focus:ring-2 focus:ring-sky-300"
+                  className="w-full rounded-[14px] bg-white dark:bg-white/10 px-4 py-3 text-base text-slate-900 dark:text-slate-100 placeholder:text-slate-400 border border-slate-200/80 shadow-[0_4px_12px_rgba(0,0,0,0.05)] focus:outline-none focus:ring-2 focus:ring-sky-300"
                 />
                 <div className="grid grid-cols-2 gap-3 mt-2">
                   <input
@@ -372,7 +372,7 @@ export default function Index() {
                       setDishQty(e.target.value.replace(/[^0-9]/g, ""))
                     }
                     placeholder="2"
-                    className="rounded-[14px] bg-white dark:bg-white/10 px-4 py-3 text-base text-[#333] placeholder:text-slate-400 border border-slate-200/80 shadow-[0_4px_12px_rgba(0,0,0,0.05)] focus:outline-none focus:ring-2 focus:ring-sky-300"
+                    className="rounded-[14px] bg-white dark:bg-white/10 px-4 py-3 text-base text-slate-900 dark:text-slate-100 placeholder:text-slate-400 border border-slate-200/80 shadow-[0_4px_12px_rgba(0,0,0,0.05)] focus:outline-none focus:ring-2 focus:ring-sky-300"
                   />
                   <input
                     value={dishPrice}
@@ -380,7 +380,7 @@ export default function Index() {
                       setDishPrice(e.target.value.replace(/[^0-9.]/g, ""))
                     }
                     placeholder="Введите сумму"
-                    className="rounded-[14px] bg-white dark:bg-white/10 px-4 py-3 text-base text-[#333] placeholder:text-slate-400 border border-slate-200/80 shadow-[0_4px_12px_rgba(0,0,0,0.05)] focus:outline-none focus:ring-2 focus:ring-sky-300"
+                    className="rounded-[14px] bg-white dark:bg-white/10 px-4 py-3 text-base text-slate-900 dark:text-slate-100 placeholder:text-slate-400 border border-slate-200/80 shadow-[0_4px_12px_rgba(0,0,0,0.05)] focus:outline-none focus:ring-2 focus:ring-sky-300"
                   />
                 </div>
                 <div className="flex items-center gap-2 mt-2">
@@ -455,8 +455,8 @@ export default function Index() {
 
                 <div className="mt-3 p-3 rounded-[10px] bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5">
                   <div className="flex items-center justify-between">
-                    <div className="text-sm text-slate-600">Общая сумма</div>
-                    <div className="font-semibold">
+                    <div className="text-sm text-slate-600 dark:text-slate-300">Общая сумма</div>
+                    <div className="font-semibold text-slate-900 dark:text-slate-100">
                       {totalSum.toLocaleString(undefined, {
                         minimumFractionDigits: 2,
                         maximumFractionDigits: 2,
@@ -491,7 +491,7 @@ export default function Index() {
                     value={participantName}
                     onChange={(e) => setParticipantName(e.target.value)}
                     placeholder="Имя участника"
-                    className="flex-1 min-w-0 rounded-[14px] bg-white dark:bg-white/10 px-4 py-3 text-base text-[#333] placeholder:text-slate-400 border border-slate-200/80 shadow-[0_4px_12px_rgba(0,0,0,0.05)] focus:outline-none focus:ring-2 focus:ring-sky-300"
+                    className="flex-1 min-w-0 rounded-[14px] bg-white dark:bg-white/10 px-4 py-3 text-base text-slate-900 dark:text-slate-100 placeholder:text-slate-400 border border-slate-200/80 shadow-[0_4px_12px_rgba(0,0,0,0.05)] focus:outline-none focus:ring-2 focus:ring-sky-300"
                   />
                   <Button
                     onClick={addParticipant}
@@ -684,7 +684,7 @@ export default function Index() {
                     setServicePercent(e.target.value.replace(/[^0-9.]/g, ""))
                   }
                   placeholder="0"
-                  className="w-28 rounded-[14px] bg-white dark:bg-white/10 px-4 py-3 text-base text-[#333] placeholder:text-slate-400 border border-slate-200/80 shadow-[0_4px_12px_rgba(0,0,0,0.05)] focus:outline-none focus:ring-2 focus:ring-sky-300"
+                  className="w-28 rounded-[14px] bg-white dark:bg-white/10 px-4 py-3 text-base text-slate-900 dark:text-slate-100 placeholder:text-slate-400 border border-slate-200/80 shadow-[0_4px_12px_rgba(0,0,0,0.05)] focus:outline-none focus:ring-2 focus:ring-sky-300"
                 />
               </div>
 
@@ -716,8 +716,8 @@ export default function Index() {
                         key={p.id}
                         className="flex items-center justify-between"
                       >
-                        <div>{p.name}</div>
-                        <div className="font-semibold">
+                        <div className="text-slate-800 dark:text-slate-100">{p.name}</div>
+                        <div className="font-semibold text-slate-900 dark:text-slate-100">
                           {(result[p.id] ?? 0).toLocaleString(undefined, {
                             minimumFractionDigits: 2,
                             maximumFractionDigits: 2,
