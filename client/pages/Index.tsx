@@ -3,6 +3,16 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { toast } from "@/components/ui/use-toast";
+import { GroupCreator } from "@/components/participants/GroupCreator";
+import { ParticipantGroupSelector } from "@/components/participants/ParticipantGroupSelector";
+import {
+  Participant,
+  Group,
+  Dish,
+  uid,
+  createGroupName,
+} from "@/lib/store";
+import { calculateSplit } from "@shared/calculations";
 
 declare global {
   interface Window {
@@ -10,17 +20,15 @@ declare global {
   }
 }
 
-type Participant = { id: string; name: string };
+type Stage =
+  | "dishes"
+  | "participants"
+  | "assign_list"
+  | "creating_group"
+  | "assigning"
+  | "review";
 
-type Dish = {
-  id: string;
-  name: string;
-  qty: number;
-  totalPrice: number; // total price for all units
-  assignments: Array<string | null>; // length == qty
-};
-
-type Stage = "dishes" | "participants" | "assign_list" | "assigning" | "review";
+type ActiveAssignee = { type: "participant" | "group"; id: string };
 
 export default function Index() {
   // Dish inputs
@@ -28,9 +36,10 @@ export default function Index() {
   const [dishQty, setDishQty] = useState<string>("1");
   const [dishPrice, setDishPrice] = useState<string>("");
 
-  // Participants
+  // Participants and Groups
   const [participantName, setParticipantName] = useState("");
   const [participants, setParticipants] = useState<Participant[]>([]);
+  const [groups, setGroups] = useState<Group[]>([]);
 
   // Dishes list
   const [dishes, setDishes] = useState<Dish[]>([]);
@@ -38,8 +47,8 @@ export default function Index() {
   // Flow stage
   const [stage, setStage] = useState<Stage>("dishes");
 
-  // Assigning participant id
-  const [activeParticipantId, setActiveParticipantId] = useState<string | null>(
+  // Assigning participant/group
+  const [activeAssignee, setActiveAssignee] = useState<ActiveAssignee | null>(
     null,
   );
 
@@ -66,11 +75,9 @@ export default function Index() {
     }
   }, []);
 
-  const uid = (prefix = "id") =>
-    `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
   const navigate = useNavigate();
 
-  // Add dish: price is total for qty, we store totalPrice and create assignments array of length qty
+  // ===== Dish Management =====
   const addDish = () => {
     const name = dishName.trim();
     const qty = Number(dishQty || 0);
@@ -90,9 +97,8 @@ export default function Index() {
       name,
       qty,
       totalPrice: price,
-      assignments: Array.from({ length: qty }).map(() => null),
+      assignments: Array.from({ length: qty }).map(() => []),
     };
-    // Append so first added stays first
     setDishes((s) => [...s, newDish]);
     setDishName("");
     setDishQty("1");
@@ -102,6 +108,7 @@ export default function Index() {
   const removeDish = (id: string) =>
     setDishes((s) => s.filter((d) => d.id !== id));
 
+  // ===== Participant Management =====
   const addParticipant = () => {
     const name = participantName.trim();
     if (!name) {
@@ -114,23 +121,66 @@ export default function Index() {
 
   const removeParticipant = (id: string) => {
     setParticipants((p) => p.filter((x) => x.id !== id));
+    // Remove this participant from all dishes and from all groups
     setDishes((ds) =>
       ds.map((d) => ({
         ...d,
-        assignments: d.assignments.map((a) => (a === id ? null : a)),
+        assignments: d.assignments.map((unitAssignees) =>
+          unitAssignees.filter((a) => a.id !== id),
+        ),
+      })),
+    );
+    setGroups((gs) =>
+      gs.map((g) => ({
+        ...g,
+        memberIds: g.memberIds.filter((memberId) => memberId !== id),
+      })).filter((g) => g.memberIds.length >= 2),
+    );
+  };
+
+  // ===== Group Management =====
+  const createGroup = (memberIds: string[]) => {
+    if (memberIds.length < 2) {
+      toast({ title: "Группа должна содержать минимум двух участников." });
+      return;
+    }
+    const newGroup: Group = {
+      id: uid("g"),
+      name: createGroupName(memberIds, participants),
+      memberIds,
+    };
+    setGroups((gs) => [...gs, newGroup]);
+    setStage("assign_list");
+  };
+
+  const deleteGroup = (groupId: string) => {
+    setGroups((gs) => gs.filter((g) => g.id !== groupId));
+    // Remove this group from all dishes
+    setDishes((ds) =>
+      ds.map((d) => ({
+        ...d,
+        assignments: d.assignments.map((unitAssignees) =>
+          unitAssignees.filter((a) => a.id !== groupId),
+        ),
       })),
     );
   };
 
-  // Assignment helpers: increment/decrement assigned units for given participant
-  const assignedCountFor = (dish: Dish, participantId: string) =>
-    dish.assignments.filter((a) => a === participantId).length;
-  const unassignedCount = (dish: Dish) =>
-    dish.assignments.filter((a) => a === null).length;
+  // ===== Assignment Helpers =====
+  const unitPrice = (d: Dish) => d.totalPrice / d.qty;
+
+  const countAssigned = (dish: Dish, assignee: ActiveAssignee): number => {
+    return dish.assignments.filter((unitAssignees) =>
+      unitAssignees.some((a) => a.type === assignee.type && a.id === assignee.id),
+    ).length;
+  };
+
+  const unassignedCount = (dish: Dish): number =>
+    dish.assignments.filter((unitAssignees) => unitAssignees.length === 0).length;
 
   const changeAssignment = (
     dishId: string,
-    participantId: string,
+    assignee: ActiveAssignee,
     delta: number,
   ) => {
     setDishes((ds) =>
@@ -138,18 +188,24 @@ export default function Index() {
         if (d.id !== dishId) return d;
         const assignments = [...d.assignments];
         if (delta > 0) {
-          // assign null slots to participant
+          // assign empty slots
           for (let i = 0; i < assignments.length && delta > 0; i++) {
-            if (assignments[i] === null) {
-              assignments[i] = participantId;
+            if (assignments[i].length === 0) {
+              assignments[i] = [assignee];
               delta--;
             }
           }
         } else if (delta < 0) {
-          // remove participant assignments from end to start
+          // remove assignments from end to start
           for (let i = assignments.length - 1; i >= 0 && delta < 0; i--) {
-            if (assignments[i] === participantId) {
-              assignments[i] = null;
+            if (
+              assignments[i].some(
+                (a) => a.type === assignee.type && a.id === assignee.id,
+              )
+            ) {
+              assignments[i] = assignments[i].filter(
+                (a) => !(a.type === assignee.type && a.id === assignee.id),
+              );
               delta++;
             }
           }
@@ -159,18 +215,22 @@ export default function Index() {
     );
   };
 
-  const allUnitsAssigned = useMemo(
-    () => dishes.every((d) => d.assignments.every((a) => a !== null)),
-    [dishes],
-  );
+  const assigneeHasAssignments = (assignee: ActiveAssignee): boolean =>
+    dishes.some((d) =>
+      d.assignments.some((unitAssignees) =>
+        unitAssignees.some(
+          (a) => a.type === assignee.type && a.id === assignee.id,
+        ),
+      ),
+    );
 
-  const participantHasAssignments = (participantId: string) =>
-    dishes.some((d) => d.assignments.includes(participantId));
+  const participantHasAssignments = (participantId: string): boolean =>
+    assigneeHasAssignments({ type: "participant", id: participantId });
 
-  // Always allow continuation from assign_list - assignments are completely optional
-  // If no assignments made, all dishes will be divided equally among participants
+  const groupHasAssignments = (groupId: string): boolean =>
+    assigneeHasAssignments({ type: "group", id: groupId });
 
-  // Navigation actions
+  // ===== Navigation =====
   const goToParticipants = () => {
     if (dishes.length === 0) {
       toast({
@@ -185,66 +245,47 @@ export default function Index() {
     setStage("assign_list");
   };
 
-  const openAssignFor = (participantId: string) => {
-    setActiveParticipantId(participantId);
+  const openAssignFor = (assignee: ActiveAssignee) => {
+    setActiveAssignee(assignee);
     setStage("assigning");
   };
 
-  const backToParticipants = () => {
-    setActiveParticipantId(null);
+  const backToAssignList = () => {
+    setActiveAssignee(null);
     setStage("assign_list");
   };
 
-  // Calculate and send: compute each participant's sum using unitPrice = totalPrice/qty
+  // ===== Calculation =====
   const calculateAndSend = async () => {
     if (dishes.length === 0) {
       toast({ title: "Добавьте блюда перед расчётом." });
       return;
     }
 
-    // If no participants selected: shared mode - cannot calculate for anyone
     if (participants.length === 0) {
-      toast({ title: "Добавьте уча��тников перед расчётом." });
+      toast({ title: "Добавьте участников перед расчётом." });
       return;
     }
 
-    const map: Record<string, number> = {};
-    participants.forEach((p) => (map[p.id] = 0));
-
-    // Sum assigned units and collect unassigned
-    let unassignedTotal = 0;
-    let grandTotal = 0;
-    dishes.forEach((d) => {
-      const unitPrice = d.totalPrice / d.qty;
-      grandTotal += d.totalPrice;
-      d.assignments.forEach((a) => {
-        if (a && map[a] !== undefined) {
-          map[a] += unitPrice;
-        } else {
-          unassignedTotal += unitPrice;
-        }
-      });
-    });
-
-    // All unassigned (or all dishes if nothing assigned): divide equally among all participants
-    if (unassignedTotal > 0) {
-      const per = unassignedTotal / participants.length;
-      participants.forEach((p) => (map[p.id] += per));
-    }
-
     const svc = Number(servicePercent) || 0;
-    const svcMultiplier = 1 + svc / 100;
 
-    const roundedMap: Record<string, number> = {};
-    let totalWithService = 0;
-    participants.forEach((p) => {
-      const withSvc = map[p.id] * svcMultiplier;
-      const rounded = Math.round(withSvc * 100) / 100; // 2 decimals
-      roundedMap[p.id] = rounded;
-      totalWithService += rounded;
-    });
+    // Convert dishes to calculation format
+    const calculationDishes = dishes.map((d) => ({
+      id: d.id,
+      name: d.name,
+      qty: d.qty,
+      totalPrice: d.totalPrice,
+      assignments: d.assignments,
+    }));
 
-    setResult(roundedMap);
+    const resultMap = calculateSplit(
+      calculationDishes,
+      participants,
+      groups,
+      svc,
+    );
+
+    setResult(resultMap);
 
     const payload = {
       type: "calculation",
@@ -252,16 +293,30 @@ export default function Index() {
       participants: participants.map((p) => ({
         id: p.id,
         name: p.name,
-        amount: roundedMap[p.id] || 0,
+        amount: resultMap[p.id] || 0,
       })),
       dishes: dishes.map((d) => ({
         id: d.id,
         name: d.name,
         qty: d.qty,
         totalPrice: d.totalPrice,
-        assignments: d.assignments,
+        assignments: d.assignments.map((unitAssignees) =>
+          unitAssignees.map((a) => ({
+            type: a.type,
+            id: a.id,
+            name:
+              a.type === "participant"
+                ? participants.find((p) => p.id === a.id)?.name || ""
+                : groups.find((g) => g.id === a.id)?.name || "",
+          })),
+        ),
       })),
-      total: Math.round(totalWithService * 100) / 100,
+      groups: groups.map((g) => ({
+        id: g.id,
+        name: g.name,
+        memberIds: g.memberIds,
+      })),
+      total: Object.values(resultMap).reduce((a, b) => a + b, 0),
     } as const;
 
     try {
@@ -275,7 +330,6 @@ export default function Index() {
         console.log("Telegram WebApp not detected, payload:", payload);
       }
       toast({ title: "✅ Отправлено успешно!" });
-      // navigate to result page with payload
       navigate("/result", { state: payload });
     } catch (e) {
       console.error(e);
@@ -285,9 +339,7 @@ export default function Index() {
     }
   };
 
-  // UI helpers
-  const unitPrice = (d: Dish) => d.totalPrice / d.qty;
-
+  // ===== Render =====
   return (
     <div className="w-full flex justify-center">
       <section
@@ -415,7 +467,6 @@ export default function Index() {
                 </div>
               </div>
 
-              {/* Button to Participants always at bottom */}
               <div>
                 <Button
                   onClick={goToParticipants}
@@ -496,31 +547,22 @@ export default function Index() {
             </div>
           )}
 
-          {/* Stage: Participants list to choose which to assign */}
+          {/* Stage: Participants and Groups list to choose which to assign */}
           {stage === "assign_list" && (
             <div className="space-y-3">
-              <div className="text-sm font-medium text-slate-600 dark:text-slate-300">
-                Выберите участника для назначения блюд
-              </div>
-              <div className="space-y-2">
-                {participants.map((p) => (
-                  <button
-                    key={p.id}
-                    onClick={() => openAssignFor(p.id)}
-                    className="w-full text-left rounded-[10px] p-3 border border-slate-100 dark:border-white/5 bg-white dark:bg-white/4 flex items-center justify-between"
-                  >
-                    <div className="font-medium text-slate-800 dark:text-slate-100">
-                      {p.name}
-                    </div>
-                    <div className="flex items-center gap-3">
-                      {participantHasAssignments(p.id) && (
-                        <div className="text-sm text-green-600">✅</div>
-                      )}
-                      <div className="text-xs text-slate-400">Выбрать</div>
-                    </div>
-                  </button>
-                ))}
-              </div>
+              <ParticipantGroupSelector
+                participants={participants}
+                groups={groups}
+                onSelectParticipant={(pId) =>
+                  openAssignFor({ type: "participant", id: pId })
+                }
+                onSelectGroup={(gId) =>
+                  openAssignFor({ type: "group", id: gId })
+                }
+                participantHasAssignments={participantHasAssignments}
+                groupHasAssignments={groupHasAssignments}
+                onCreateGroup={() => setStage("creating_group")}
+              />
               <div className="flex gap-2">
                 <Button
                   onClick={() => setStage("participants")}
@@ -536,23 +578,31 @@ export default function Index() {
             </div>
           )}
 
-          {/* Stage: Assigning for single participant */}
-          {stage === "assigning" && activeParticipantId && (
+          {/* Stage: Creating a group */}
+          {stage === "creating_group" && (
+            <GroupCreator
+              participants={participants}
+              onGroupCreated={createGroup}
+              onCancel={() => setStage("assign_list")}
+            />
+          )}
+
+          {/* Stage: Assigning for single participant or group */}
+          {stage === "assigning" && activeAssignee && (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div className="text-sm font-medium text-slate-600 dark:text-slate-300">
                   Выдача блюд —{" "}
-                  {participants.find((x) => x.id === activeParticipantId)?.name}
+                  {activeAssignee.type === "participant"
+                    ? participants.find((x) => x.id === activeAssignee.id)?.name
+                    : groups.find((x) => x.id === activeAssignee.id)?.name}
                 </div>
                 <div className="text-xs text-slate-400">(остаток/всего)</div>
               </div>
 
               <div className="space-y-2">
                 {dishes.map((d) => {
-                  const assignedToThis = assignedCountFor(
-                    d,
-                    activeParticipantId,
-                  );
+                  const assignedToThis = countAssigned(d, activeAssignee);
                   const remaining = unassignedCount(d);
                   return (
                     <div
@@ -581,9 +631,7 @@ export default function Index() {
                       <div className="mt-3 flex items-center gap-3">
                         <button
                           className="px-3 py-1 rounded-lg bg-slate-100"
-                          onClick={() =>
-                            changeAssignment(d.id, activeParticipantId, -1)
-                          }
+                          onClick={() => changeAssignment(d.id, activeAssignee, -1)}
                           aria-label="decrease"
                         >
                           −
@@ -596,9 +644,7 @@ export default function Index() {
                         </div>
                         <button
                           className="px-3 py-1 rounded-lg bg-slate-100"
-                          onClick={() =>
-                            changeAssignment(d.id, activeParticipantId, 1)
-                          }
+                          onClick={() => changeAssignment(d.id, activeAssignee, 1)}
                           aria-label="increase"
                         >
                           +
@@ -611,7 +657,7 @@ export default function Index() {
 
               <div className="flex items-center justify-center mt-3">
                 <Button
-                  onClick={() => setStage("assign_list")}
+                  onClick={backToAssignList}
                   variant="default"
                   className="w-1/2"
                 >
