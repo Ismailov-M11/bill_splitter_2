@@ -14,7 +14,7 @@ export interface DishAssignment {
   name: string;
   qty: number;
   totalPrice: number;
-  assignments: Array<{ type: 'participant' | 'group'; id: string }[]>; // assignments[i] = list of participant/group ids for unit i
+  assignments: Array<{ type: "participant" | "group"; id: string }[]>; // assignments[i] = list of participant/group ids for unit i
 }
 
 export interface CalculationResult {
@@ -34,7 +34,7 @@ export function calculateSplit(
   servicePercent: number = 0,
 ): CalculationResult {
   const result: CalculationResult = {};
-  
+
   // Initialize all participants to 0
   participants.forEach((p) => {
     result[p.id] = 0;
@@ -43,7 +43,7 @@ export function calculateSplit(
   // Process each dish
   dishes.forEach((dish) => {
     const unitPrice = dish.totalPrice / dish.qty;
-    
+
     // For each unit of the dish
     dish.assignments.forEach((unitAssignees) => {
       if (unitAssignees.length === 0) {
@@ -55,12 +55,12 @@ export function calculateSplit(
       } else {
         // Assigned unit - calculate share for all assignees
         const assigneeParticipants: string[] = [];
-        
+
         // Expand groups to individual participants
         unitAssignees.forEach((assignee) => {
-          if (assignee.type === 'participant') {
+          if (assignee.type === "participant") {
             assigneeParticipants.push(assignee.id);
-          } else if (assignee.type === 'group') {
+          } else if (assignee.type === "group") {
             const group = groups.find((g) => g.id === assignee.id);
             if (group) {
               assigneeParticipants.push(...group.memberIds);

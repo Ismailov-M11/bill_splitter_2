@@ -14,7 +14,7 @@ export interface Dish {
   name: string;
   qty: number;
   totalPrice: number;
-  assignments: Array<{ type: 'participant' | 'group'; id: string }[]>; // assignments[i] = list of assignees for unit i
+  assignments: Array<{ type: "participant" | "group"; id: string }[]>; // assignments[i] = list of assignees for unit i
 }
 
 export interface AppState {
@@ -30,16 +30,24 @@ export const initialState: AppState = {
 };
 
 // Utility functions
-export function uid(prefix = 'id'): string {
+export function uid(prefix = "id"): string {
   return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
-export function createGroupName(memberIds: string[], participants: Participant[]): string {
+export function createGroupName(
+  memberIds: string[],
+  participants: Participant[],
+): string {
   return memberIds
-    .map((id) => participants.find((p) => p.id === id)?.name || 'Unknown')
-    .join(', ');
+    .map((id) => participants.find((p) => p.id === id)?.name || "Unknown")
+    .join(", ");
 }
 
-export function getParticipantsByIds(ids: string[], participants: Participant[]): Participant[] {
-  return ids.map((id) => participants.find((p) => p.id === id)).filter((p): p is Participant => p !== undefined);
+export function getParticipantsByIds(
+  ids: string[],
+  participants: Participant[],
+): Participant[] {
+  return ids
+    .map((id) => participants.find((p) => p.id === id))
+    .filter((p): p is Participant => p !== undefined);
 }

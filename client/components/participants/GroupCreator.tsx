@@ -73,18 +73,10 @@ export function GroupCreator({
       </div>
 
       <div className="flex gap-2">
-        <Button
-          onClick={onCancel}
-          variant="ghost"
-          className="flex-1"
-        >
+        <Button onClick={onCancel} variant="ghost" className="flex-1">
           Назад
         </Button>
-        <Button
-          onClick={handleClear}
-          variant="ghost"
-          className="flex-1"
-        >
+        <Button onClick={handleClear} variant="ghost" className="flex-1">
           Очистить
         </Button>
         <Button

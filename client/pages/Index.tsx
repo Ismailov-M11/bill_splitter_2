@@ -5,13 +5,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "@/components/ui/use-toast";
 import { GroupCreator } from "@/components/participants/GroupCreator";
 import { ParticipantGroupSelector } from "@/components/participants/ParticipantGroupSelector";
-import {
-  Participant,
-  Group,
-  Dish,
-  uid,
-  createGroupName,
-} from "@/lib/store";
+import { Participant, Group, Dish, uid, createGroupName } from "@/lib/store";
 import { calculateSplit } from "@shared/calculations";
 
 declare global {
@@ -131,10 +125,12 @@ export default function Index() {
       })),
     );
     setGroups((gs) =>
-      gs.map((g) => ({
-        ...g,
-        memberIds: g.memberIds.filter((memberId) => memberId !== id),
-      })).filter((g) => g.memberIds.length >= 2),
+      gs
+        .map((g) => ({
+          ...g,
+          memberIds: g.memberIds.filter((memberId) => memberId !== id),
+        }))
+        .filter((g) => g.memberIds.length >= 2),
     );
   };
 
@@ -171,12 +167,15 @@ export default function Index() {
 
   const countAssigned = (dish: Dish, assignee: ActiveAssignee): number => {
     return dish.assignments.filter((unitAssignees) =>
-      unitAssignees.some((a) => a.type === assignee.type && a.id === assignee.id),
+      unitAssignees.some(
+        (a) => a.type === assignee.type && a.id === assignee.id,
+      ),
     ).length;
   };
 
   const unassignedCount = (dish: Dish): number =>
-    dish.assignments.filter((unitAssignees) => unitAssignees.length === 0).length;
+    dish.assignments.filter((unitAssignees) => unitAssignees.length === 0)
+      .length;
 
   const changeAssignment = (
     dishId: string,
@@ -631,7 +630,9 @@ export default function Index() {
                       <div className="mt-3 flex items-center gap-3">
                         <button
                           className="px-3 py-1 rounded-lg bg-slate-100"
-                          onClick={() => changeAssignment(d.id, activeAssignee, -1)}
+                          onClick={() =>
+                            changeAssignment(d.id, activeAssignee, -1)
+                          }
                           aria-label="decrease"
                         >
                           −
@@ -644,7 +645,9 @@ export default function Index() {
                         </div>
                         <button
                           className="px-3 py-1 rounded-lg bg-slate-100"
-                          onClick={() => changeAssignment(d.id, activeAssignee, 1)}
+                          onClick={() =>
+                            changeAssignment(d.id, activeAssignee, 1)
+                          }
                           aria-label="increase"
                         >
                           +
