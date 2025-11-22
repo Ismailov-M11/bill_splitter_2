@@ -630,7 +630,7 @@ export default function Index() {
 
                       <div className="mt-3 flex items-center gap-3">
                         <button
-                          className="px-3 py-1 rounded-lg bg-slate-100"
+                          className="px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-700 dark:text-slate-100"
                           onClick={() =>
                             changeAssignment(d.id, activeAssignee, -1)
                           }
@@ -638,14 +638,14 @@ export default function Index() {
                         >
                           −
                         </button>
-                        <div className="flex-1 text-center">
+                        <div className="flex-1 text-center text-slate-900 dark:text-slate-100">
                           {assignedToThis} шт{" "}
                           {assignedToThis > 0 && (
                             <span className="text-green-600">✅</span>
                           )}
                         </div>
                         <button
-                          className="px-3 py-1 rounded-lg bg-slate-100"
+                          className="px-3 py-1 rounded-lg bg-slate-100 dark:bg-slate-700 dark:text-slate-100"
                           onClick={() =>
                             changeAssignment(d.id, activeAssignee, 1)
                           }
