@@ -1,3 +1,4 @@
+import { describe, it, expect } from "vitest";
 import { calculateSplit } from "@shared/calculations";
 
 describe("Group assignment calculations", () => {
