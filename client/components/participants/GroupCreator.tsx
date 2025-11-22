@@ -37,19 +37,13 @@ export function GroupCreator({
       return;
     }
 
-    const newGroup: Group = {
-      id: uid("g"),
-      name: createGroupName(selectedMemberIds, participants),
-      memberIds: selectedMemberIds,
-    };
-
-    onGroupCreated(newGroup);
+    onGroupCreated(selectedMemberIds);
   };
 
   return (
     <div className="space-y-3">
       <div className="text-sm font-medium text-slate-600 dark:text-slate-300">
-        Выб��рите участников для группы
+        Выберите участников для группы
       </div>
 
       <div className="space-y-2 max-h-64 overflow-y-auto">
