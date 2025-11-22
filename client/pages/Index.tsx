@@ -424,7 +424,7 @@ export default function Index() {
                   {dishes.map((d) => (
                     <div
                       key={d.id}
-                      className="rounded-[12px] p-3 border border-slate-100 dark:border-white/5 bg-white dark:bg-white/4"
+                      className="rounded-[12px] p-3 border border-slate-100 dark:border-white/5 bg-white dark:bg-slate-800"
                     >
                       <div className="flex items-center justify-between">
                         <div>
@@ -453,7 +453,7 @@ export default function Index() {
                   ))}
                 </div>
 
-                <div className="mt-3 p-3 rounded-[10px] bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5">
+                <div className="mt-3 p-3 rounded-[10px] bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-white/5">
                   <div className="flex items-center justify-between">
                     <div className="text-sm text-slate-600 dark:text-slate-300">Общая сумма</div>
                     <div className="font-semibold text-slate-900 dark:text-slate-100">
@@ -509,7 +509,7 @@ export default function Index() {
                   {participants.map((p) => (
                     <div
                       key={p.id}
-                      className="flex items-center justify-between rounded-[10px] p-2 border border-slate-100 dark:border-white/5 bg-white dark:bg-white/4"
+                      className="flex items-center justify-between rounded-[10px] p-2 border border-slate-100 dark:border-white/5 bg-white dark:bg-slate-800"
                     >
                       <div className="flex items-center gap-3">
                         <div className="font-medium text-slate-800 dark:text-slate-100">
@@ -607,7 +607,7 @@ export default function Index() {
                   return (
                     <div
                       key={d.id}
-                      className="rounded-[10px] p-3 border border-slate-100 dark:border-white/5 bg-white dark:bg-white/4"
+                      className="rounded-[10px] p-3 border border-slate-100 dark:border-white/5 bg-white dark:bg-slate-800"
                     >
                       <div className="flex items-center justify-between">
                         <div>
@@ -706,7 +706,7 @@ export default function Index() {
               </div>
 
               {result && (
-                <div className="mt-3 rounded-[12px] p-3 border border-slate-100 dark:border-white/5 bg-white dark:bg-white/4">
+                <div className="mt-3 rounded-[12px] p-3 border border-slate-100 dark:border-white/5 bg-white dark:bg-slate-800">
                   <div className="text-sm font-medium text-slate-700 dark:text-slate-100">
                     Результат
                   </div>

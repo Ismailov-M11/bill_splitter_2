@@ -56,13 +56,13 @@ export function GroupCreator({
               "flex items-center gap-3",
               selectedMemberIds.includes(p.id)
                 ? "border-sky-300 bg-sky-50 dark:border-sky-500/30 dark:bg-sky-500/10"
-                : "border-slate-100 dark:border-white/5 bg-white dark:bg-white/4",
+                : "border-slate-100 dark:border-white/5 bg-white dark:bg-slate-800",
             )}
           >
             <input
               type="checkbox"
               checked={selectedMemberIds.includes(p.id)}
-              onChange={() => {}}
+              onChange={() => { }}
               className="w-4 h-4 rounded"
             />
             <div className="font-medium text-slate-800 dark:text-slate-100">

@@ -32,7 +32,7 @@ export function ParticipantGroupSelector({
           <button
             key={p.id}
             onClick={() => onSelectParticipant(p.id)}
-            className="w-full text-left rounded-[10px] p-3 border border-slate-100 dark:border-white/5 bg-white dark:bg-white/4 flex items-center justify-between"
+            className="w-full text-left rounded-[10px] p-3 border border-slate-100 dark:border-white/5 bg-white dark:bg-slate-800 flex items-center justify-between"
           >
             <div className="font-medium text-slate-800 dark:text-slate-100">
               {p.name}
@@ -58,7 +58,7 @@ export function ParticipantGroupSelector({
           <button
             key={g.id}
             onClick={() => onSelectGroup(g.id)}
-            className="w-full text-left rounded-[10px] p-3 border border-slate-100 dark:border-white/5 bg-slate-50 dark:bg-white/5 flex items-center justify-between"
+            className="w-full text-left rounded-[10px] p-3 border border-slate-100 dark:border-white/5 bg-slate-50 dark:bg-slate-800 flex items-center justify-between"
           >
             <div>
               <div className="font-medium text-slate-800 dark:text-slate-100">
