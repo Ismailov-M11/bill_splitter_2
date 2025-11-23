@@ -363,6 +363,8 @@ export default function Index() {
                   value={dishName}
                   onChange={(e) => setDishName(e.target.value)}
                   placeholder="Введите название блюда"
+                  type="text"
+                  autoComplete="off"
                   className="w-full rounded-[14px] bg-white dark:bg-white/10 px-4 py-3 text-base text-slate-900 dark:text-slate-100 placeholder:text-slate-400 border border-slate-200/80 shadow-[0_4px_12px_rgba(0,0,0,0.05)] focus:outline-none focus:ring-2 focus:ring-sky-300"
                 />
                 <div className="grid grid-cols-2 gap-3 mt-2">
@@ -372,6 +374,9 @@ export default function Index() {
                       setDishQty(e.target.value.replace(/[^0-9]/g, ""))
                     }
                     placeholder="2"
+                    type="number"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                     className="rounded-[14px] bg-white dark:bg-white/10 px-4 py-3 text-base text-slate-900 dark:text-slate-100 placeholder:text-slate-400 border border-slate-200/80 shadow-[0_4px_12px_rgba(0,0,0,0.05)] focus:outline-none focus:ring-2 focus:ring-sky-300"
                   />
                   <input
@@ -380,6 +385,9 @@ export default function Index() {
                       setDishPrice(e.target.value.replace(/[^0-9.]/g, ""))
                     }
                     placeholder="Введите сумму"
+                    type="number"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                     className="rounded-[14px] bg-white dark:bg-white/10 px-4 py-3 text-base text-slate-900 dark:text-slate-100 placeholder:text-slate-400 border border-slate-200/80 shadow-[0_4px_12px_rgba(0,0,0,0.05)] focus:outline-none focus:ring-2 focus:ring-sky-300"
                   />
                 </div>
@@ -491,6 +499,8 @@ export default function Index() {
                     value={participantName}
                     onChange={(e) => setParticipantName(e.target.value)}
                     placeholder="Имя участника"
+                    type="text"
+                    autoComplete="off"
                     className="flex-1 min-w-0 rounded-[14px] bg-white dark:bg-white/10 px-4 py-3 text-base text-slate-900 dark:text-slate-100 placeholder:text-slate-400 border border-slate-200/80 shadow-[0_4px_12px_rgba(0,0,0,0.05)] focus:outline-none focus:ring-2 focus:ring-sky-300"
                   />
                   <Button
@@ -684,6 +694,9 @@ export default function Index() {
                     setServicePercent(e.target.value.replace(/[^0-9.]/g, ""))
                   }
                   placeholder="0"
+                  type="number"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
                   className="w-28 rounded-[14px] bg-white dark:bg-white/10 px-4 py-3 text-base text-slate-900 dark:text-slate-100 placeholder:text-slate-400 border border-slate-200/80 shadow-[0_4px_12px_rgba(0,0,0,0.05)] focus:outline-none focus:ring-2 focus:ring-sky-300"
                 />
               </div>
