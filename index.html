@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Bill Splitter | Telegram WebApp</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <!-- 🧩 Majburan light mode qilish uchun -->
+    <meta name="color-scheme" content="light">
+    <meta name="theme-color" content="#ffffff">
+
+    <style>
+      /* Telegram dark signalini bekor qiladi */
+      :root {
+        color-scheme: light;
+        background-color: #ffffff !important;
+        color: #000000 !important;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          color-scheme: light;
+          background-color: #ffffff !important;
+          color: #000000 !important;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="root"></div>
+
+    <script type="module" src="/client/main.tsx"></script>
+  </body>
+</html>
