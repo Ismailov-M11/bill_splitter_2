@@ -55,34 +55,20 @@ export default function Index() {
     if (tg && typeof tg.ready === "function") {
       try {
         tg.ready();
+        tg.expand();
+        tg.enableClosingConfirmation();
         if (tg.colorScheme === "dark")
           document.documentElement.classList.add("dark");
       } catch { }
     }
-  }, []);
 
-  const hasData = dishes.length > 0 || participants.length > 0;
-
-  useEffect(() => {
-    const tg = (window as any)?.Telegram?.WebApp;
-    if (tg) {
-      if (hasData) {
-        tg.enableClosingConfirmation?.();
-      } else {
-        tg.disableClosingConfirmation?.();
-      }
-    }
-  }, [hasData]);
-
-  useEffect(() => {
-    if (!hasData) return;
     const handler = (e: BeforeUnloadEvent) => {
       e.preventDefault();
       e.returnValue = "";
     };
     window.addEventListener("beforeunload", handler);
     return () => window.removeEventListener("beforeunload", handler);
-  }, [hasData]);
+  }, []);
 
   const navigate = useNavigate();
 
