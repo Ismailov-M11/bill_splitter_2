@@ -366,13 +366,11 @@ export default function Index() {
       const tg = window.Telegram?.WebApp;
       if (tg && typeof tg.sendData === "function") {
         tg.sendData(JSON.stringify(payload));
-      } else if (window.Telegram?.WebApp?.sendData) {
-        window.Telegram.WebApp.sendData(JSON.stringify(payload));
+        // webapp closes automatically after sendData — no navigate needed
       } else {
         console.log("Telegram WebApp not detected, payload:", payload);
+        navigate("/result", { state: payload });
       }
-      toast({ title: "✅ Отправлено успешно!" });
-      navigate("/result", { state: payload });
     } catch (e) {
       console.error(e);
       toast({ title: "Ошибка при отправке в бота." });

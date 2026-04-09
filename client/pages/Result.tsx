@@ -79,19 +79,10 @@ export default function Result() {
             </div>
             <div className="mt-2 text-sm text-slate-600 space-y-2">
               {payload.dishes.map((d: any) => {
-                const hasAssignments = d.assignments.some(
-                  (unitAssignees: any[]) => unitAssignees.length > 0,
-                );
-                const assignmentSummary = hasAssignments
-                  ? d.assignments
-                      .filter(
-                        (unitAssignees: any[]) => unitAssignees.length > 0,
-                      )
-                      .map((unitAssignees: any[]) =>
-                        unitAssignees.map((a: any) => a.name).join(" + "),
-                      )
-                      .join(", ")
-                  : "Не назначено";
+                const flat: (string | null)[] = d.flatAssignments ?? [];
+                const assigned = flat.filter(Boolean);
+                const assignmentSummary =
+                  assigned.length > 0 ? assigned.join(", ") : "Не назначено";
 
                 return (
                   <div key={d.id} className="space-y-1">
